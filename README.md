@@ -3,10 +3,12 @@
 ## Overview
 AWS Instance Scheduler is a solution that allows you to automate the start and stop times of your EC2 instances using schedules and periods.
 
+### Learn More
+For more detailed [AWS Instance Scheduler](https://cloud-alliance.atlassian.net/wiki/spaces/SD/pages/64126978/Reports+for+Instance+Scheduler).
 ### What is a Period?
 A period defines a specific time range within which instances should start/stop. It includes attributes:
-- `begintime`: The start time (e.g., `09:00`)
-- `endtime`: The end time (e.g., `18:00`)
+- `begintime`: The start time (e.g., `10:00`)
+- `endtime`: The end time (e.g., `23:59`)
 - `weekdays`: The days of the week when the period applies (e.g., `mon-fri`)
 - `timezone`: The timezone in which the period is defined
 
@@ -22,6 +24,7 @@ A schedule is a set of one or more periods. It associates specific periods with 
 ## Step 1: Create a Period using AWS CLI
 To create a new period name `custom-hours`, 
 
+Create new Period with begintime at 10am and endtime at 23h59pm. 
 Change `table-name` with name of table in dynamoDB
 
 ```sh
@@ -29,10 +32,10 @@ aws dynamodb put-item \
     --table-name "instance-scheduler-ConfigTable-1UEPV1KC8ZETH" \
     --item '{
         "type": {"S": "period"},
-        "name": {"S": "custom-hours"},
-        "begintime": {"S": "09:00"},
+        "name": {"S": "period-1"},
+        "begintime": {"S": "10:00"},
         "description": {"S": "Custom working hours"},
-        "endtime": {"S": "18:00"},
+        "endtime": {"S": "23:59"},
         "weekdays": {"SS": ["mon", "tue", "wed", "thu", "fri"]}
     }' \
     --region us-east-1
@@ -41,15 +44,14 @@ aws dynamodb put-item \
 ---
 
 ## Step 2: Create a Schedule using AWS CLI
-To create a schedule that **references** the `custom-hours` period, use:
-
+Create a schedule that **references** the `period-1` period and name for schedule is `schedule-1` , use:
 
 ```sh
 aws dynamodb put-item \
     --table-name "instance-scheduler-ConfigTable-1UEPV1KC8ZETH" \
     --item '{
         "type": {"S": "schedule"},
-        "name": {"S": "custom-schedule"},
+        "name": {"S": "schedule-1"},
         "description": {"S": "Custom schedule using custom-hours period"},
         "periods": {"SS": ["custom-hours"]},
         "timezone": {"S": "Asia/Ho_Chi_Minh"}
@@ -59,12 +61,26 @@ aws dynamodb put-item \
 
 ---
 
-## Step 3: Assign Schedule to EC2 Instances
+## Step 3: Assign Schedule to Instances
 
-### Attach Schedule to a Single EC2 Instance
+### Attach Schedule to a EC2 Instance
+#### Ataach tags with Key is `Schedule` and value is name of Schedule just created `schedule-1`
 ```sh
 aws ec2 create-tags \
     --resources <INSTANCE_ID> \
-    --tags Key=Schedule,Value="custom-schedule" \
+    --tags Key=Schedule,Value="schedule-1" \
     --region us-east-1
 ```
+#### After that, Ec2 will implement schedule, start at 10am and end at 23h59
+### Attach Schedule to a RDS Instance
+```sh
+```
+
+### Attach Schedule to a Neptune Instance
+```sh
+```
+
+### Attach Schedule to a DocumentDB Instance
+```sh
+```
+
