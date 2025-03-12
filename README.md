@@ -4,7 +4,7 @@
 AWS Instance Scheduler is a solution that allows you to automate the start and stop times of your EC2 instances using schedules and periods.
 
 ### Learn More
-For more detailed [AWS Instance Scheduler](https://cloud-alliance.atlassian.net/wiki/spaces/SD/pages/64126978/Reports+for+Instance+Scheduler).
+For more detailed use case [AWS Instance Scheduler](https://cloud-alliance.atlassian.net/wiki/spaces/SD/pages/64126978/Reports+for+Instance+Scheduler).
 ### What is a Period?
 A period defines a specific time range within which instances should start/stop. It includes attributes:
 - `begintime`: The start time (e.g., `10:00`)
@@ -20,6 +20,10 @@ A schedule is a set of one or more periods. It associates specific periods with 
 ---
 ## Pipeline Architect
 ![Pipeline Architecture](image.png)
+1. Create a Period – Define the time slot for starting/stopping instances
+2. Create a Schedule – Group one or more periods to control instance scheduling.
+3. Attach Schedule to Instances – Assign the schedule using tags via AWS Console or AWS CLI.
+
 ---
 ## Step 1: Create a Period using AWS CLI
 To create a new period name `custom-hours`, 
@@ -84,3 +88,5 @@ aws ec2 create-tags \
 ```sh
 ```
 
+## Instead of using **AWS CLI**, you can use **Scheduler CLI**
+see at: [Using Scheduler CLI](UseSchedulerCLI.md).

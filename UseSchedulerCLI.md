@@ -1,28 +1,54 @@
 # AWS Instance Scheduler Configuration
 
-## Overview
-AWS Instance Scheduler is a solution that allows you to automate the start and stop times of your EC2 instances using schedules and periods.
-
-### Learn More
-For more detailed [AWS Instance Scheduler](https://docs.aws.amazon.com/solutions/latest/instance-scheduler-on-aws/scheduler-cli-4.html).
-### What is a Period?
-A period defines a specific time range within which instances should start/stop. It includes attributes:
-- `begintime`: The start time (e.g., `10:00`)
-- `endtime`: The end time (e.g., `23:59`)
-- `weekdays`: The days of the week when the period applies (e.g., `mon-fri`)
-- `timezone`: The timezone in which the period is defined
-
-### What is a Schedule?
-A schedule is a set of one or more periods. It associates specific periods with EC2 instances using tags.
-- A schedule can reference one or more periods
-- The schedule's timezone should match the required execution region
-
----
 ## Pipeline Architect
 ![Pipeline Architecture](image.png)
 ---
-## Step 1: Create a Period using Scheduler CLI
-To create a new period name `custom-hours`, 
+Install Schduler CLI
+```sh
+wget -O instance_scheduler_cli.zip https://s3.amazonaws.com/solutions-reference/instance-scheduler-on-aws/latest/instance_scheduler_cli
+.zip
 
+unzip instance_scheduler_cli.zip
+
+pip install --no-index --find-links=instance_scheduler_cli instance_scheduler_cli 
+```
+---
+## Step 1: Create a Period using **Scheduler CLI**
 Create new Period with begintime at 10am and endtime at 23h59pm. 
-Change `table-name` with name of table in dynamoDB
+
+```sh
+scheduler-cli create-period --name <"Period Name"> --begintime 10:00 --endtime 23:59 --weekdays mon-fri --stack <Cloudformation Stack Name>
+```
+
+## Step 2: Create a Schedule using **Scheduler CLI**
+Create a schedule that **references** the period bellow use:
+```sh
+scheduler-cli create-schedule --name <Schedule Name> --periods <Period Name>,weekends --timezone Asia/Ho_Chi_Minh --stack <Cloudformation Stack Name>
+```
+
+## Step 3: Attach to Instances
+
+### Attach Schedule to a EC2 Instance
+**Must use AWS CLI (Scheduler CLI dont have commands)**
+
+```sh
+aws ec2 create-tags \
+    --resources <INSTANCE_ID> \
+    --tags Key=Schedule,Value=<Schedule Name> \
+    --region <Region>
+```
+
+### Attach Schedule to a RDS Instance
+```sh
+```
+
+### Attach Schedule to a Neptune Instance
+```sh
+```
+
+### Attach Schedule to a DocumentDB Instance
+```sh
+```
+---
+## Learn More About Scheduler CLI Commands visit the
+[Scheduler CLI Commands](https://docs.aws.amazon.com/solutions/latest/instance-scheduler-on-aws/scheduler-cli-4.html).
